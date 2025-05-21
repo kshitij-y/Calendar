@@ -28,7 +28,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StoreProvider>
-          <SplashWrapper>{children}</SplashWrapper>
+          {/* <SplashWrapper>{children}</SplashWrapper> */}
+          {children}
         </StoreProvider>
       </body>
     </html>

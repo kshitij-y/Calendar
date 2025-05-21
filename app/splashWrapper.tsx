@@ -12,7 +12,7 @@ export default function SplashWrapper({ children }: SplashWrapperProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-    }, 2000); // Show splash for 2 seconds
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
