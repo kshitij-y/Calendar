@@ -1,23 +1,30 @@
 "use client";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import moment from "moment";
-import {
-  getVisibleEvents,
-  groupAndPositionEvents,
-} from "@/utils/events";
+import { getVisibleEvents, groupAndPositionEvents } from "@/utils/events";
+import EventItem from "./EventItem";
+import { updateEvent, removeEvent } from "@/lib/store/Slice/calendarSlice";
 
 const PIXELS_PER_MINUTE = 2 / 3;
 const EVENT_PADDING = 2;
-const COLUMN_WIDTH = 80;
+const COLUMN_WIDTH = 100;
 
 export default function Week({
   selectedDate,
 }: {
   selectedDate: moment.Moment;
 }) {
+  const dispatch = useDispatch();
   const events = useSelector((state: RootState) => state.calendar.events);
+  const handleUpdate = (updatedEvent: any) => {
+    dispatch(updateEvent(updatedEvent));
+  };
+
+  const handleDelete = (eventId: string) => {
+    dispatch(removeEvent(eventId));
+  };
 
   const weekStart = selectedDate.clone().startOf("week");
   const days = Array.from({ length: 7 }, (_, i) =>
@@ -67,21 +74,16 @@ export default function Week({
                 const left = event.columnIndex * (width + EVENT_PADDING);
 
                 return (
-                  <div
+                  <EventItem
                     key={event.id}
-                    className="absolute bg-blue-600 text-white text-xs p-1 rounded shadow-md"
-                    style={{
-                      top: `${minutesFromStart * PIXELS_PER_MINUTE}px`,
-                      height: `${Math.max(duration * PIXELS_PER_MINUTE, 20)}px`,
-                      left: `${left}px`,
-                      width: `${width}px`,
-                    }}>
-                    <div className="font-semibold truncate">{event.title}</div>
-                    <div className="text-[10px] opacity-80 truncate">
-                      {moment(event.start).format("h:mm A")} -{" "}
-                      {moment(event.end).format("h:mm A")}
-                    </div>
-                  </div>
+                    event={event}
+                    top={minutesFromStart * PIXELS_PER_MINUTE}
+                    height={Math.max(duration * PIXELS_PER_MINUTE, 20)}
+                    left={left}
+                    width={width}
+                    onUpdate={handleUpdate}
+                    onDelete={handleDelete}
+                  />
                 );
               })}
             </div>

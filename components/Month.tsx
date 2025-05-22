@@ -5,6 +5,7 @@ import { RootState } from "@/lib/store/store";
 import moment from "moment";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import { expandRecurringEvents } from "@/utils/events";
 
 export default function Month({
   selectedDate,
@@ -25,7 +26,13 @@ export default function Month({
     day.add(1, "day");
   }
 
-  const eventsByDay = groupEventsByDay(events);
+  // Use recurrence-aware events
+  const expandedEvents = expandRecurringEvents(
+    events,
+    startOfMonth,
+    endOfMonth
+  );
+  const eventsByDay = groupEventsByDay(expandedEvents);
 
   return (
     <div className="grid grid-cols-7 gap-px bg-white/10">
@@ -43,7 +50,7 @@ export default function Month({
 
         return (
           <div
-            key={d.toString()}
+            key={dateKey}
             onClick={() => router.push(`/day?day=${dateKey}`)}
             className={clsx(
               "aspect-square p-2 text-sm sm:text-md md:text-lg border border-white/10 relative cursor-pointer hover:bg-white/10 transition",

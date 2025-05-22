@@ -1,27 +1,35 @@
 "use client";
 
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import moment from "moment";
 import {
   getVisibleEvents,
   groupAndPositionEvents,
+  PIXELS_PER_MINUTE,
 } from "@/utils/events";
+import EventItem from "@/components/EventItem";
+import { updateEvent, removeEvent } from "@/lib/store/Slice/calendarSlice";
 
-const PIXELS_PER_MINUTE = 2 / 3;
 const EVENT_PADDING = 2;
 const EVENT_AREA_WIDTH = 570;
 
-export default function Day({
-  selectedDate,
-}: {
-  selectedDate: moment.Moment;
-}) {
-  const events = useSelector((state: RootState) => state.calendar.events);
-  const timeSlots = Array.from({ length: 24 }, (_, i) => i);
 
+export default function Day({ selectedDate }: { selectedDate: moment.Moment }) {
+  const dispatch = useDispatch();
+  const events = useSelector((state: RootState) => state.calendar.events);
+
+  const timeSlots = Array.from({ length: 24 }, (_, i) => i);
   const visibleEvents = getVisibleEvents(events, selectedDate);
   const positionedEvents = groupAndPositionEvents(visibleEvents, selectedDate);
+
+  const handleUpdate = (updatedEvent: any) => {
+    dispatch(updateEvent(updatedEvent));
+  };
+
+  const handleDelete = (eventId: string) => {
+    dispatch(removeEvent(eventId));
+  };
 
   return (
     <div className="relative border border-white/10 ml-16">
@@ -44,21 +52,16 @@ export default function Day({
         const left = event.columnIndex * (width + EVENT_PADDING);
 
         return (
-          <div
+          <EventItem
             key={event.id}
-            className="absolute bg-blue-600 text-white text-xs p-2 rounded shadow-md"
-            style={{
-              top: `${minutesFromStart * PIXELS_PER_MINUTE}px`,
-              height: `${Math.max(duration * PIXELS_PER_MINUTE, 20)}px`,
-              left: `${left}px`,
-              width: `${width}px`,
-            }}>
-            <div className="font-semibold">{event.title}</div>
-            <div className="text-[10px] opacity-80">
-              {moment(event.start).format(" h:mm A")} -{" "}
-              {moment(event.end).format(" h:mm A")}
-            </div>
-          </div>
+            event={event}
+            top={minutesFromStart * PIXELS_PER_MINUTE}
+            height={Math.max(duration * PIXELS_PER_MINUTE, 20)}
+            left={left}
+            width={width}
+            onUpdate={handleUpdate}
+            onDelete={handleDelete}
+          />
         );
       })}
     </div>

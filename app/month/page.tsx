@@ -1,20 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import moment from "moment";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Month from "@/components/Month";
 
 export default function MonthPage() {
-  const [selectedDate, setSelectedDate] = useState(moment());
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const paramDate = searchParams.get("date");
+  const [selectedDate, setSelectedDate] = useState(
+    paramDate && moment(paramDate).isValid() ? moment(paramDate) : moment()
+  );
+
+  useEffect(() => {
+    if (paramDate && moment(paramDate).isValid()) {
+      setSelectedDate(moment(paramDate));
+    }
+  }, [paramDate]);
+
+  const updateDate = (date: moment.Moment) => {
+    setSelectedDate(date);
+    router.push(`/month?date=${date.format("YYYY-MM-DD")}`, { scroll: false });
+  };
 
   const handlePrev = () =>
-    setSelectedDate((prev) => prev.clone().subtract(1, "month"));
-  const handleNext = () =>
-    setSelectedDate((prev) => prev.clone().add(1, "month"));
-  const handleToday = () => setSelectedDate(moment());
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setSelectedDate(moment(e.target.value));
+    updateDate(selectedDate.clone().subtract(1, "month"));
+  const handleNext = () => updateDate(selectedDate.clone().add(1, "month"));
+  const handleToday = () => updateDate(moment());
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = moment(e.target.value);
+    if (newDate.isValid()) updateDate(newDate);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white px-4">

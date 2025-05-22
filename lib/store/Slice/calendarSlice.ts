@@ -39,9 +39,11 @@ const calendarSlice = createSlice({
   initialState,
   reducers: {
     addEvent(state, action: PayloadAction<CalendarEvent>) {
+      console.log("Adding event:", action.payload);
       state.events.push(action.payload);
     },
     removeEvent(state, action: PayloadAction<string>) {
+      console.log("Removing event with ID:", action.payload);
       state.events = state.events.filter(
         (event) => event.id !== action.payload
       );
