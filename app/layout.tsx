@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "./StoreProvider";
 import SplashWrapper from "./splashWrapper";
+import Nav from "@/components/Nav";
+import FadeIn from "@/components/motion/FadeIn";
+import TopSection from "@/components/topSection";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,6 +32,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StoreProvider>
           {/* <SplashWrapper>{children}</SplashWrapper> */}
+          <FadeIn>
+            <div className="flex fixed top-[13px] left-1/2 transform -translate-x-1/2 z-10">
+              <Nav />
+            </div>
+          </FadeIn>
+          <TopSection />
+
           {children}
         </StoreProvider>
       </body>
