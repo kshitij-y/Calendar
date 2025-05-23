@@ -2,28 +2,33 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addEvent, CalendarEvent } from "@/lib/store/Slice/calendarSlice";
 import { v4 as uuidv4 } from "uuid";
+import { validateEvent, checkTimeConflicts } from "@/utils/validateEvent";
+import { RootState } from "@/lib/store/store";
 
 type AddEventProps = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function AddEvent ({ isOpen, setIsOpen }: AddEventProps) {
+export default function AddEvent({ isOpen, setIsOpen }: AddEventProps) {
   const dispatch = useDispatch();
+  const existingEvents = useSelector(
+    (state: RootState) => state.calendar.events
+  );
 
   const [title, setTitle] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] =
-    useState<CalendarEvent["category"]>("default");
-  const [recurrence, setRecurrence] =
-    useState<CalendarEvent["recurrence"]>("none");
+  const [category, setCategory] =  useState<CalendarEvent["category"]>("default");
+  const [recurrence, setRecurrence] = useState<CalendarEvent["recurrence"]>("none");
+  const [errors, setErrors] = useState<string[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newEvent: CalendarEvent = {
@@ -36,8 +41,42 @@ export default function AddEvent ({ isOpen, setIsOpen }: AddEventProps) {
       recurrence,
     };
 
+    const resetForm = () => {
+      setTitle("");
+      setStart("");
+      setEnd("");
+      setDescription("");
+      setCategory("default");
+      setRecurrence("none");
+      setErrors([]);
+      setWarnings([]);
+    };
+
+    const validationErrors = validateEvent(newEvent);
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      setWarnings([]);
+      return;
+    }
+    setErrors([]);
+
+    const conflictWarnings = checkTimeConflicts(newEvent, existingEvents);
+
+    if (conflictWarnings.length > 0) {
+      const confirmMsg = `Warning: Your event conflicts with existing events:\n\n${conflictWarnings
+        .map((w) => `- ${w}`)
+        .join("\n")}\n\nDo you want to add this event anyway?`;
+
+      if (!window.confirm(confirmMsg)) {
+        setWarnings(conflictWarnings);
+        return;
+      }
+    }
+    setWarnings([]);
+
     dispatch(addEvent(newEvent));
     setIsOpen(false);
+    resetForm();
   };
 
   if (!isOpen) return null;
@@ -64,6 +103,22 @@ export default function AddEvent ({ isOpen, setIsOpen }: AddEventProps) {
         <h2 className="mb-6 text-2xl font-semibold text-white">
           Add New Event
         </h2>
+
+        {errors.length > 0 && (
+          <div className="mb-4 rounded bg-red-700 p-3 text-red-100">
+            {errors.map((err, i) => (
+              <p key={i}>⚠️ {err}</p>
+            ))}
+          </div>
+        )}
+
+        {warnings.length > 0 && (
+          <div className="mb-4 rounded bg-yellow-700 p-3 text-yellow-100">
+            {warnings.map((warn, i) => (
+              <p key={i}>⚠️ {warn}</p>
+            ))}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -225,6 +280,4 @@ export default function AddEvent ({ isOpen, setIsOpen }: AddEventProps) {
       </div>
     </div>
   );
-};
-
-
+}

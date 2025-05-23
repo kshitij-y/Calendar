@@ -31,15 +31,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StoreProvider>
-          {/* <SplashWrapper>{children}</SplashWrapper> */}
-          <FadeIn>
-            <div className="flex fixed top-[13px] left-1/2 transform -translate-x-1/2 z-10">
-              <Nav />
-            </div>
-          </FadeIn>
-          <TopSection />
-
-          {children}
+          <SplashWrapper>
+            <FadeIn>
+              <div className="flex fixed top-[13px] left-1/2 transform -translate-x-1/2 z-10">
+                <Nav />
+              </div>
+            </FadeIn>
+            <TopSection />
+            {children}
+          </SplashWrapper>
         </StoreProvider>
       </body>
     </html>

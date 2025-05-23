@@ -5,7 +5,7 @@ import { RootState } from "@/lib/store/store";
 import moment from "moment";
 import { getVisibleEvents, groupAndPositionEvents } from "@/utils/events";
 import EventItem from "./EventItem";
-import { updateEvent, removeEvent } from "@/lib/store/Slice/calendarSlice";
+import { updateEvent, removeEvent, CalendarEvent } from "@/lib/store/Slice/calendarSlice";
 
 const PIXELS_PER_MINUTE = 2 / 3;
 const EVENT_PADDING = 2;
@@ -18,7 +18,7 @@ export default function Week({
 }) {
   const dispatch = useDispatch();
   const events = useSelector((state: RootState) => state.calendar.events);
-  const handleUpdate = (updatedEvent: any) => {
+  const handleUpdate = (updatedEvent: CalendarEvent) => {
     dispatch(updateEvent(updatedEvent));
   };
 

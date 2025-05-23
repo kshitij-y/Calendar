@@ -4,12 +4,14 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import moment from "moment";
 import { CalendarEvent } from "@/lib/store/Slice/calendarSlice";
+import { validateEvent, checkTimeConflicts } from "@/utils/validateEvent";
 
 type Props = {
   event: CalendarEvent;
   onClose: () => void;
   onDelete: () => void;
   onUpdate: (updatedEvent: CalendarEvent) => void;
+  existingEvents: CalendarEvent[];
 };
 
 const categories = ["default", "birthday", "holiday", "reminder", "meeting"];
@@ -20,6 +22,7 @@ export default function EventDetailModal({
   onClose,
   onDelete,
   onUpdate,
+  existingEvents,
 }: Props) {
   const [title, setTitle] = useState(event.title);
   const [start, setStart] = useState(
@@ -30,6 +33,9 @@ export default function EventDetailModal({
   const [category, setCategory] = useState(event.category);
   const [recurrence, setRecurrence] = useState(event.recurrence);
 
+  const [errors, setErrors] = useState<string[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
+
   useEffect(() => {
     setTitle(event.title);
     setStart(moment(event.start).format("YYYY-MM-DDTHH:mm"));
@@ -37,10 +43,12 @@ export default function EventDetailModal({
     setDescription(event.description || "");
     setCategory(event.category);
     setRecurrence(event.recurrence);
+    setErrors([]);
+    setWarnings([]);
   }, [event]);
 
   const handleSave = () => {
-    onUpdate({
+    const updatedEvent: CalendarEvent = {
       ...event,
       title,
       start: new Date(start).toISOString(),
@@ -48,7 +56,32 @@ export default function EventDetailModal({
       description,
       category,
       recurrence,
-    });
+    };
+
+    const validationErrors = validateEvent(updatedEvent);
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      setWarnings([]);
+      return;
+    }
+    setErrors([]);
+
+    const otherEvents = (existingEvents ?? []).filter((e) => e.id !== event.id);
+    const conflictWarnings = checkTimeConflicts(updatedEvent, otherEvents);
+
+    if (conflictWarnings.length > 0) {
+      const confirmMsg = `Warning: Your event conflicts with existing events:\n\n${conflictWarnings
+        .map((w) => `- ${w}`)
+        .join("\n")}\n\nDo you want to save anyway?`;
+
+      if (!window.confirm(confirmMsg)) {
+        setWarnings(conflictWarnings);
+        return;
+      }
+    }
+    setWarnings([]);
+
+    onUpdate(updatedEvent);
   };
 
   const inputClass =
@@ -61,16 +94,29 @@ export default function EventDetailModal({
           className="absolute top-3 right-3 text-gray-400 hover:text-white"
           onClick={onClose}
           aria-label="Close">
-          <Image
-            src="/x.svg"
-            alt="Close"
-            width={20}
-            height={20}
-            className="cursor-pointer"
-          />
+          <Image src="/x.svg" alt="Close" width={20} height={20} />
         </button>
 
         <h2 className="mb-6 text-2xl font-semibold text-white">Edit Event</h2>
+
+        {errors.length > 0 && (
+          <div className="mb-4 rounded bg-red-700 p-3 text-red-100">
+            {errors.map((err, i) => (
+              <p key={i}>⚠️ {err}</p>
+            ))}
+          </div>
+        )}
+
+        {warnings.length > 0 && (
+          <div className="mb-4 rounded border border-yellow-600 bg-yellow-900/50 p-3 text-yellow-300">
+            <strong className="block mb-1">Warnings:</strong>
+            <ul className="list-disc list-inside">
+              {warnings.map((warn, i) => (
+                <li key={i}>{warn}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="space-y-5">
           <div>

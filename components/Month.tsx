@@ -5,7 +5,7 @@ import { RootState } from "@/lib/store/store";
 import moment from "moment";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { expandRecurringEvents } from "@/utils/events";
+import { expandRecurringEvents } from "@/utils/reccur";
 
 export default function Month({
   selectedDate,
@@ -26,7 +26,6 @@ export default function Month({
     day.add(1, "day");
   }
 
-  // Use recurrence-aware events
   const expandedEvents = expandRecurringEvents(
     events,
     startOfMonth,

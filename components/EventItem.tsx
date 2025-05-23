@@ -1,16 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import moment from "moment";
 import EventDetailModal from "./EventDetails";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store/store";
+import { CalendarEvent } from "@/lib/store/Slice/calendarSlice";
 
 type EventItemProps = {
-  event: any;
+  event: CalendarEvent;
   top: number;
   height: number;
   left: number;
   width: number;
-  onUpdate: (updatedEvent: any) => void;
+  onUpdate: (updatedEvent: CalendarEvent) => void;
   onDelete: (eventId: string) => void;
 };
 
@@ -24,8 +27,9 @@ export default function EventItem({
   onDelete,
 }: EventItemProps) {
   const [showModal, setShowModal] = useState(false);
+  const events = useSelector((state: RootState) => state.calendar.events);
 
-  const handleUpdate = (updatedEvent: any) => {
+  const handleUpdate = (updatedEvent: CalendarEvent) => {
     onUpdate(updatedEvent);
     setShowModal(false);
   };
@@ -63,6 +67,7 @@ export default function EventItem({
           onClose={() => setShowModal(false)}
           onDelete={handleDelete}
           onUpdate={handleUpdate}
+          existingEvents={events}
         />
       )}
     </>

@@ -9,7 +9,11 @@ import {
   PIXELS_PER_MINUTE,
 } from "@/utils/events";
 import EventItem from "@/components/EventItem";
-import { updateEvent, removeEvent } from "@/lib/store/Slice/calendarSlice";
+import {
+  updateEvent,
+  removeEvent,
+  CalendarEvent,
+} from "@/lib/store/Slice/calendarSlice";
 
 const EVENT_PADDING = 2;
 const EVENT_AREA_WIDTH = 570;
@@ -23,7 +27,7 @@ export default function Day({ selectedDate }: { selectedDate: moment.Moment }) {
   const visibleEvents = getVisibleEvents(events, selectedDate);
   const positionedEvents = groupAndPositionEvents(visibleEvents, selectedDate);
 
-  const handleUpdate = (updatedEvent: any) => {
+  const handleUpdate = (updatedEvent: CalendarEvent) => {
     dispatch(updateEvent(updatedEvent));
   };
 

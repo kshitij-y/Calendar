@@ -26,7 +26,6 @@ export default function WeekPage() {
 
   return (
     <div className="flex flex-col min-h-screen min-w-[700px] bg-black text-white px-4 overflow-auto">
-      {/* Header */}
       <div className="flex flex-col max-w-7xl mx-auto w-full pt-4">
         <div className="flex items-center gap-2 py-3 text-2xl font-semibold text-white">
           <button className="bg-white/10 p-2 rounded-md" onClick={handlePrev}>

@@ -17,7 +17,7 @@ type Props = {
   setIsOpen: (isOpen: boolean) => void;
 };
 
-export default function SearchBox({ isOpen, setIsOpen }: Props) {
+export default function SearchBox({ setIsOpen }: Props) {
   const [query, setQuery] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
@@ -89,6 +89,7 @@ export default function SearchBox({ isOpen, setIsOpen }: Props) {
           onClose={() => setSelectedEvent(null)}
           onDelete={handleDelete}
           onUpdate={handleUpdate}
+          existingEvents={events}
         />
       )}
     </div>

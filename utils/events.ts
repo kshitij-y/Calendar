@@ -11,63 +11,50 @@ const RECURRENCE_UNITS: Record<string, moment.unitOfTime.DurationConstructor> =
     yearly: "years",
   };
 
-export function expandRecurringEvents(
-  events: any[],
-  rangeStart: moment.Moment,
-  rangeEnd: moment.Moment
-) {
+export function getVisibleEvents(events: any[], selectedDate: moment.Moment) {
+  const dayStart = selectedDate.clone().startOf("day");
+  const dayEnd = selectedDate.clone().endOf("day");
+
   const results: any[] = [];
 
   for (const event of events) {
-    const start = moment(event.start);
-    const end = moment(event.end);
+    const eventStart = moment(event.start);
+    const eventEnd = moment(event.end);
 
     if (!event.recurrence || event.recurrence === "none") {
-      if (end.isBefore(rangeStart) || start.isAfter(rangeEnd)) continue;
+      if (eventEnd.isBefore(dayStart) || eventStart.isAfter(dayEnd)) continue;
 
       results.push({
         ...event,
-        start: moment.max(start, rangeStart).toISOString(),
-        end: moment.min(end, rangeEnd).toISOString(),
+        start: moment.max(eventStart, dayStart).toISOString(),
+        end: moment.min(eventEnd, dayEnd).toISOString(),
       });
       continue;
     }
 
-    if (event.recurrence === "custom") {
-      console.warn(`Custom recurrence not supported yet: ${event.title}`);
-      continue;
-    }
+    if (event.recurrence && event.recurrence !== "custom") {
+      const unit = RECURRENCE_UNITS[event.recurrence];
+      let currentStart = eventStart.clone();
+      let currentEnd = eventEnd.clone();
 
-    const unit = RECURRENCE_UNITS[event.recurrence];
-    if (!unit) continue;
+      while (currentStart.isSameOrBefore(dayEnd)) {
+        if (currentEnd.isSameOrAfter(dayStart)) {
+          results.push({
+            ...event,
+            id: `${event.id}`, 
+            start: moment.max(currentStart, dayStart).toISOString(),
+            end: moment.min(currentEnd, dayEnd).toISOString(),
+          });
+        }
+        currentStart.add(1, unit);
+        currentEnd.add(1, unit);
 
-    let currentStart = start.clone();
-    let currentEnd = end.clone();
-    let safety = 0;
-
-    while (currentStart.isSameOrBefore(rangeEnd)) {
-      if (currentEnd.isAfter(rangeStart)) {
-        results.push({
-          ...event,
-          id: `${event.id}`,
-          start: moment.max(currentStart, rangeStart).toISOString(),
-          end: moment.min(currentEnd, rangeEnd).toISOString(),
-        });
+        if (currentStart.diff(dayEnd, "years") > 1) break;
       }
-      currentStart.add(1, unit);
-      currentEnd.add(1, unit);
-
-      if (++safety > 500) break;
     }
   }
 
   return results;
-}
-
-export function getVisibleEvents(events: any[], selectedDate: moment.Moment) {
-  const dayStart = selectedDate.clone().startOf("day");
-  const dayEnd = selectedDate.clone().endOf("day");
-  return expandRecurringEvents(events, dayStart, dayEnd);
 }
 
 export function groupAndPositionEvents(
