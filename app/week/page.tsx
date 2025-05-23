@@ -25,8 +25,8 @@ export default function WeekPage() {
   const weekEnd = selectedDate.clone().endOf("week");
 
   return (
-    <div className="flex flex-col min-h-screen min-w-[700px] bg-black text-white px-4 overflow-auto">
-      <div className="flex flex-col max-w-7xl mx-auto w-full pt-4">
+    <div className="flex flex-col min-h-screen  bg-black text-white px-4 overflow-x-auto">
+      <div className="flex flex-col max-w-5xl mx-auto w-full pt-4">
         <div className="flex items-center gap-2 py-3 text-2xl font-semibold text-white">
           <button className="bg-white/10 p-2 rounded-md" onClick={handlePrev}>
             <ChevronLeft />

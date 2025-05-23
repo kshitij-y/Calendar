@@ -14,9 +14,9 @@ import {
   removeEvent,
   CalendarEvent,
 } from "@/lib/store/Slice/calendarSlice";
+import { useEffect, useState } from "react";
 
 const EVENT_PADDING = 2;
-const EVENT_AREA_WIDTH = 570;
 
 
 export default function Day({ selectedDate }: { selectedDate: moment.Moment }) {
@@ -26,6 +26,19 @@ export default function Day({ selectedDate }: { selectedDate: moment.Moment }) {
   const timeSlots = Array.from({ length: 24 }, (_, i) => i);
   const visibleEvents = getVisibleEvents(events, selectedDate);
   const positionedEvents = groupAndPositionEvents(visibleEvents, selectedDate);
+
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+
+  // Dynamic width calculation
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const EVENT_AREA_WIDTH = windowWidth * 0.6 - 50;
 
   const handleUpdate = (updatedEvent: CalendarEvent) => {
     dispatch(updateEvent(updatedEvent));
@@ -52,7 +65,7 @@ export default function Day({ selectedDate }: { selectedDate: moment.Moment }) {
         );
         const duration = moment(event.end).diff(moment(event.start), "minutes");
 
-        const width = EVENT_AREA_WIDTH / event.totalColumns - EVENT_PADDING;
+        let width = EVENT_AREA_WIDTH / event.totalColumns - EVENT_PADDING;
         const left = event.columnIndex * (width + EVENT_PADDING);
 
         return (

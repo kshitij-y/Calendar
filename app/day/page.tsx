@@ -30,8 +30,8 @@ export default function DayPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen h-full pb-12 items-center min-w-[420px] bg-black text-white px-4">
-      <div className="flex flex-col w-full sm:max-w-3xl max-w-[600px] pt-4">
+    <div className="flex flex-col min-h-screen h-full w-full pb-12 items-center min-w-[420px] bg-black text-white px-4">
+      <div className="flex flex-col max-w-3xl sm:max-w-5xl w-full mx-auto  pt-4">
         <div className="flex items-center gap-2 py-3 text-2xl font-semibold text-white">
           <button className="bg-white/10 p-2 rounded-md" onClick={handleLeft}>
             <ChevronLeft />

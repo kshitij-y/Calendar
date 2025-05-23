@@ -1,6 +1,7 @@
 "use client";
 
 import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 import { RootState } from "@/lib/store/store";
 import moment from "moment";
 import { getVisibleEvents, groupAndPositionEvents } from "@/utils/events";
@@ -9,7 +10,6 @@ import { updateEvent, removeEvent, CalendarEvent } from "@/lib/store/Slice/calen
 
 const PIXELS_PER_MINUTE = 2 / 3;
 const EVENT_PADDING = 2;
-const COLUMN_WIDTH = 100;
 
 export default function Week({
   selectedDate,
@@ -18,6 +18,20 @@ export default function Week({
 }) {
   const dispatch = useDispatch();
   const events = useSelector((state: RootState) => state.calendar.events);
+
+  const [windowWidth, setWindowWidth] = useState(
+      typeof window !== "undefined" ? window.innerWidth : 0
+    );
+  
+    // Dynamic width calculation
+    useEffect(() => {
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+  
+  const COLUMN_WIDTH = windowWidth * 0.1;
+  
   const handleUpdate = (updatedEvent: CalendarEvent) => {
     dispatch(updateEvent(updatedEvent));
   };
