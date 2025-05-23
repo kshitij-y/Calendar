@@ -1,15 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-  const today = moment();
+  const [year, setYear] = useState(moment().year());
+  const currentYear = moment().year();
 
   const months = Array.from({ length: 12 }, (_, i) =>
-    today.clone().month(i).startOf("month")
+    moment().year(year).month(i).startOf("month")
   );
 
   function daysInMonth(month: moment.Moment) {
@@ -26,10 +27,27 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-black text-white p-4">
       <header className="mb-6 text-center">
-        <h1 className="text-3xl font-bold">{today.format("YYYY")}</h1>
-        <p className="text-sm text-white/70 mt-1">
-          Select a month to view details
-        </p>
+        <h1 className="text-3xl font-bold mb-2">{year}</h1>
+
+        <div className="space-x-4 mb-4">
+          <button
+            onClick={() => setYear((prev) => prev - 1)}
+            className="px-4 py-1 border rounded hover:bg-white/10 transition">
+            ← Prev
+          </button>
+          <button
+            onClick={() => setYear(currentYear)}
+            className="px-4 py-1 border rounded hover:bg-white/10 transition">
+            Today
+          </button>
+          <button
+            onClick={() => setYear((prev) => prev + 1)}
+            className="px-4 py-1 border rounded hover:bg-white/10 transition">
+            Next →
+          </button>
+        </div>
+
+        <p className="text-sm text-white/70">Select a month to view details</p>
       </header>
 
       <main className="w-full max-w-5xl">
@@ -40,10 +58,9 @@ export default function Home() {
 
             return (
               <button
-                key={month.month()}
+                key={month.format("YYYY-MM")}
                 onClick={() => handleMonthClick(month)}
-                className="rounded-lg p-4 bg-gray-900 hover:bg-gray-800 transition-colors duration-200 text-left border border-transparent"
-                type="button">
+                className="rounded-lg p-4 bg-white/5 hover:bg-white/10 transition-colors duration-200 text-left border border-white/10">
                 <h2 className="font-semibold mb-2 text-lg">
                   {month.format("MMMM")}
                 </h2>
@@ -62,15 +79,14 @@ export default function Home() {
                   ))}
 
                   {days.map((day) => {
-                    const isToday = day.isSame(today, "day");
+                    const isToday = day.isSame(moment(), "day");
 
                     return (
                       <div
                         key={day.date()}
-                        className={`text-center py-1 rounded
-                          ${
-                            isToday ? "bg-blue-600 font-bold" : "bg-gray-700"
-                          }`}>
+                        className={`text-center py-1 rounded ${
+                          isToday ? "bg-blue-600 font-bold" : "bg-gray-700"
+                        }`}>
                         {day.date()}
                       </div>
                     );

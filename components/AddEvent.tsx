@@ -11,7 +11,7 @@ type AddEventProps = {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const AddEvent: React.FC<AddEventProps> = ({ isOpen, setIsOpen }) => {
+export default function AddEvent ({ isOpen, setIsOpen }: AddEventProps) {
   const dispatch = useDispatch();
 
   const [title, setTitle] = useState("");
@@ -227,4 +227,4 @@ const AddEvent: React.FC<AddEventProps> = ({ isOpen, setIsOpen }) => {
   );
 };
 
-export default AddEvent;
+
