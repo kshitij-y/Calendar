@@ -65,7 +65,7 @@ export default function Day({ selectedDate }: { selectedDate: moment.Moment }) {
         );
         const duration = moment(event.end).diff(moment(event.start), "minutes");
 
-        let width = EVENT_AREA_WIDTH / event.totalColumns - EVENT_PADDING;
+        const width = EVENT_AREA_WIDTH / event.totalColumns - EVENT_PADDING;
         const left = event.columnIndex * (width + EVENT_PADDING);
 
         return (
