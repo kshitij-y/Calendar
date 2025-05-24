@@ -3,7 +3,12 @@
 A minimal, responsive calendar application built with **Next.js**. This project is designed to be easy to run locally or in a Docker container.
 
 ---
+🌐 Live Demo
 
+Try the app live at:
+
+👉 https://calendar-rho-sooty.vercel.app/day
+---
 ## 🚀 Getting Started (Local Development)
 
 ### 1. Clone the Repository
@@ -40,13 +45,13 @@ http://localhost:3000
 ### 1. Pull the Docker Image
 
 ```bash
-docker pull kshitijdock032/calendar
+docker pull kshitijdock032/e-calendar
 ```
 
 ### 2. Run the Container
 
 ```bash
-docker run -d -p 3000:3000 kshitijdock032/calendar
+docker run -d -p 3000:3000 kshitijdock032/e-calendar:latest
 ```
 
 ### 3. Open in Browser
@@ -67,13 +72,6 @@ http://localhost:3000
 * [Redux Toolkit](https://redux-toolkit.js.org/)
 * [Moment.js](https://momentjs.com/)
 
----
-
-## 📦 Deployment
-
-Deployed easily on [Vercel](https://vercel.com) or run with Docker.
-
-For manual deployment, refer to the [Next.js Deployment Docs](https://nextjs.org/docs/app/building-your-application/deploying).
 
 ---
 
