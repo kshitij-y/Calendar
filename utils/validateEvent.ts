@@ -40,9 +40,27 @@ export function validateEvent(event: CalendarEvent): string[] {
     }
   }
 
+  // ✅ Custom recurrence validation
+  if (event.recurrence === "custom") {
+    if (
+      !event.customRule ||
+      !Array.isArray(event.customRule.daysOfWeek) ||
+      event.customRule.daysOfWeek.length === 0
+    ) {
+      errors.push("For custom recurrence, select at least one weekday.");
+    }
+
+    const validWeekdays = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+    const hasInvalid = event.customRule?.daysOfWeek?.some(
+      (d) => !validWeekdays.includes(d)
+    );
+    if (hasInvalid) {
+      errors.push("Custom recurrence contains invalid weekday values.");
+    }
+  }
+
   return errors;
 }
-  
 
 export function checkTimeConflicts(
   newEvent: CalendarEvent,

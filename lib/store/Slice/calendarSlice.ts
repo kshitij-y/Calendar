@@ -14,14 +14,19 @@ export type Recurrence =
   | "yearly"
   | "custom";
 
+export interface CustomRecurrenceRule {
+  daysOfWeek?: string[];
+}
+
 export interface CalendarEvent {
   id: string;
   title: string;
-  start: string; 
-  end: string; 
+  start: string;
+  end: string;
   description?: string;
   category: Category;
   recurrence?: Recurrence;
+  customRule?: CustomRecurrenceRule;
 }
 
 interface CalendarState {

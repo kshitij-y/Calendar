@@ -11,6 +11,11 @@ const RECURRENCE_UNITS: Record<string, moment.unitOfTime.DurationConstructor> =
     yearly: "years",
   };
 
+function isCustomWeeklyMatch(event: any, selectedDate: moment.Moment) {
+  const dayOfWeek = selectedDate.format("dd").toUpperCase(); // "MO", "TU", etc.
+  return event.customRule?.daysOfWeek?.includes(dayOfWeek);
+}
+
 export function getVisibleEvents(events: any[], selectedDate: moment.Moment) {
   const dayStart = selectedDate.clone().startOf("day");
   const dayEnd = selectedDate.clone().endOf("day");
@@ -32,25 +37,44 @@ export function getVisibleEvents(events: any[], selectedDate: moment.Moment) {
       continue;
     }
 
-    if (event.recurrence && event.recurrence !== "custom") {
-      const unit = RECURRENCE_UNITS[event.recurrence];
-      let currentStart = eventStart.clone();
-      let currentEnd = eventEnd.clone();
+    if (event.recurrence === "custom") {
+      if (isCustomWeeklyMatch(event, selectedDate)) {
+        const adjustedStart = selectedDate.clone().set({
+          hour: eventStart.hour(),
+          minute: eventStart.minute(),
+          second: 0,
+        });
 
-      while (currentStart.isSameOrBefore(dayEnd)) {
-        if (currentEnd.isSameOrAfter(dayStart)) {
-          results.push({
-            ...event,
-            id: `${event.id}`, 
-            start: moment.max(currentStart, dayStart).toISOString(),
-            end: moment.min(currentEnd, dayEnd).toISOString(),
-          });
-        }
-        currentStart.add(1, unit);
-        currentEnd.add(1, unit);
+        const adjustedEnd = adjustedStart
+          .clone()
+          .add(eventEnd.diff(eventStart), "milliseconds");
 
-        if (currentStart.diff(dayEnd, "years") > 1) break;
+        results.push({
+          ...event,
+          start: adjustedStart.toISOString(),
+          end: adjustedEnd.toISOString(),
+        });
       }
+      continue;
+    }
+
+    const unit = RECURRENCE_UNITS[event.recurrence];
+    let currentStart = eventStart.clone();
+    let currentEnd = eventEnd.clone();
+
+    while (currentStart.isSameOrBefore(dayEnd)) {
+      if (currentEnd.isSameOrAfter(dayStart)) {
+        results.push({
+          ...event,
+          id: `${event.id}`,
+          start: moment.max(currentStart, dayStart).toISOString(),
+          end: moment.min(currentEnd, dayEnd).toISOString(),
+        });
+      }
+      currentStart.add(1, unit);
+      currentEnd.add(1, unit);
+
+      if (currentStart.diff(dayEnd, "years") > 1) break;
     }
   }
 

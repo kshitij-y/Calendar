@@ -23,10 +23,11 @@ export default function AddEvent({ isOpen, setIsOpen }: AddEventProps) {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] =  useState<CalendarEvent["category"]>("default");
-  const [recurrence, setRecurrence] = useState<CalendarEvent["recurrence"]>("none");
+  const [category, setCategory] = useState<CalendarEvent["category"]>("default");
+  const [recurrence, setRecurrence] =  useState<CalendarEvent["recurrence"]>("none");
   const [errors, setErrors] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [customRule, setCustomRule] = useState<{ daysOfWeek: string[]}>({daysOfWeek: []});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +40,9 @@ export default function AddEvent({ isOpen, setIsOpen }: AddEventProps) {
       description,
       category,
       recurrence,
+      ...(recurrence === "custom" && {
+        customRule: { daysOfWeek: customRule.daysOfWeek },
+      }),
     };
 
     const resetForm = () => {
@@ -78,6 +82,10 @@ export default function AddEvent({ isOpen, setIsOpen }: AddEventProps) {
     setIsOpen(false);
     resetForm();
   };
+
+  function toggleItem<T>(arr: T[], item: T): T[] {
+    return arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item];
+  }
 
   if (!isOpen) return null;
 
@@ -137,58 +145,6 @@ export default function AddEvent({ isOpen, setIsOpen }: AddEventProps) {
               required
               autoFocus
             />
-          </div>
-
-          <div>
-            <label
-              htmlFor="start"
-              className="block text-sm font-medium mb-1 text-gray-300">
-              Start Date & Time
-            </label>
-            <div className="relative">
-              <input
-                id="start"
-                type="datetime-local"
-                value={start}
-                onChange={(e) => setStart(e.target.value)}
-                className={`${inputClass} pl-2`}
-                required
-              />
-              <div className="pointer-events-none absolute top-3 right-3 flex items-center opacity-60">
-                <Image
-                  src="/calendar.svg"
-                  alt="Calendar"
-                  width={18}
-                  height={18}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="end"
-              className="block text-sm font-medium mb-1 text-gray-300">
-              End Date & Time
-            </label>
-            <div className="relative">
-              <input
-                id="end"
-                type="datetime-local"
-                value={end}
-                onChange={(e) => setEnd(e.target.value)}
-                className={`${inputClass} pl-2`}
-                required
-              />
-              <div className="pointer-events-none absolute top-3 right-3 flex items-center opacity-60">
-                <Image
-                  src="/calendar.svg"
-                  alt="Calendar"
-                  width={18}
-                  height={18}
-                />
-              </div>
-            </div>
           </div>
 
           <div>
@@ -269,6 +225,81 @@ export default function AddEvent({ isOpen, setIsOpen }: AddEventProps) {
                 Custom
               </option>
             </select>
+          </div>
+          {recurrence === "custom" && (
+            <div className="mt-4 text-sm text-gray-700">
+              <label className="font-medium mb-2 block">Repeat on:</label>
+              <div className="flex flex-wrap justify-between w-full">
+                {["MO", "TU", "WE", "TH", "FR", "SA", "SU"].map((day) => (
+                  <button
+                    type="button"
+                    key={day}
+                    className={`px-2 py-1 border rounded ${
+                      customRule.daysOfWeek.includes(day)
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100"
+                    }`}
+                    onClick={() =>
+                      setCustomRule((prev) => ({
+                        daysOfWeek: toggleItem(prev.daysOfWeek, day),
+                      }))
+                    }>
+                    {day}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <label
+              htmlFor="start"
+              className="block text-sm font-medium mb-1 text-gray-300">
+              Start Date & Time
+            </label>
+            <div className="relative">
+              <input
+                id="start"
+                type="datetime-local"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+                className={`${inputClass} pl-2`}
+                required
+              />
+              <div className="pointer-events-none absolute top-3 right-3 flex items-center opacity-60">
+                <Image
+                  src="/calendar.svg"
+                  alt="Calendar"
+                  width={18}
+                  height={18}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="end"
+              className="block text-sm font-medium mb-1 text-gray-300">
+              End Date & Time
+            </label>
+            <div className="relative">
+              <input
+                id="end"
+                type="datetime-local"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+                className={`${inputClass} pl-2`}
+                required
+              />
+              <div className="pointer-events-none absolute top-3 right-3 flex items-center opacity-60">
+                <Image
+                  src="/calendar.svg"
+                  alt="Calendar"
+                  width={18}
+                  height={18}
+                />
+              </div>
+            </div>
           </div>
 
           <button

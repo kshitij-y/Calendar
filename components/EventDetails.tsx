@@ -32,6 +32,9 @@ export default function EventDetailModal({
   const [description, setDescription] = useState(event.description || "");
   const [category, setCategory] = useState(event.category);
   const [recurrence, setRecurrence] = useState(event.recurrence);
+  const [customRule, setCustomRule] = useState<{ daysOfWeek: string[] }>({
+    daysOfWeek: event.customRule?.daysOfWeek ?? [],
+  });
 
   const [errors, setErrors] = useState<string[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -47,6 +50,14 @@ export default function EventDetailModal({
     setWarnings([]);
   }, [event]);
 
+  const toggleItem = (arr: string[], item: string) => {
+    if (arr.includes(item)) {
+      return arr.filter((i) => i !== item);
+    } else {
+      return [...arr, item];
+    }
+  };
+
   const handleSave = () => {
     const updatedEvent: CalendarEvent = {
       ...event,
@@ -56,6 +67,10 @@ export default function EventDetailModal({
       description,
       category,
       recurrence,
+      customRule:
+        recurrence === "custom"
+          ? { daysOfWeek: customRule.daysOfWeek }
+          : undefined,
     };
 
     const validationErrors = validateEvent(updatedEvent);
@@ -245,6 +260,32 @@ export default function EventDetailModal({
               ))}
             </select>
           </div>
+
+          {/* Custom Recurrence Day Selector */}
+          {recurrence === "custom" && (
+            <div className="mt-4 text-sm text-gray-700">
+              <label className="font-medium mb-2 block">Repeat on:</label>
+              <div className="flex flex-wrap justify-between w-full">
+                {["MO", "TU", "WE", "TH", "FR", "SA", "SU"].map((day) => (
+                  <button
+                    type="button"
+                    key={day}
+                    className={`px-2 py-1 border rounded ${
+                      customRule.daysOfWeek.includes(day)
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100"
+                    }`}
+                    onClick={() =>
+                      setCustomRule((prev) => ({
+                        daysOfWeek: toggleItem(prev.daysOfWeek, day),
+                      }))
+                    }>
+                    {day}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-between pt-4">
             <button
